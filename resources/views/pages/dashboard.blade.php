@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('title')
+    Walet Sales
+@endsection
+
 @section('content')
 
     <div class="container-fluid">
