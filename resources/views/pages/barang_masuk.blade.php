@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Barang Masuk')
 
 @section('content')
 <div class="container">
@@ -32,36 +33,50 @@
     </div>
 
     <div class="product-list-section">
-        <h2>Product List</h2>
+        <h2>List Barang</h2>
+        <input type="text" placeholder="Search barang" id="search" class="form-control mb-3">
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>No.</th>
-                    <th>Product Code</th>
-                    <th>Product Name</th>
-                    <th>Dimension</th>
-                    <th>Unit</th>
-                    <th>Action</th>
+                    <th>Kode Produk</th>
+                    <th>Nama Barang</th>
+                    <th>Berat</th>
+                    <th>Harga</th>
+                    <th>Total</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>1</td>
-                    <td>1234</td>
-                    <td>Air Putih</td>
-                    <td>12mm</td>
-                    <td>5</td>
+                    <td>budi</td>
+                    <td>Patahan</td>
+                    <td>200</td>
+                    <td>Rp. 5000</td>
+                    <td>Rp. 1000.000</td>
                     <td>
                         <a href="#" class="btn btn-sm btn-warning">Edit</a>
                         <a href="#" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
-                <tr>
                     <td>2</td>
-                    <td>1221</td>
-                    <td>Jus Jeruk</td>
-                    <td>18</td>
-                    <td>10</td>
+                    <td>budi</td>
+                    <td>Patah KW</td>
+                    <td>500</td>
+                    <td>Rp. 4000</td>
+                    <td>Rp. 2000.000</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                    <td>3</td>
+                    <td>budi</td>
+                    <td>Kakian</td>
+                    <td>1000</td>
+                    <td>Rp. 3000</td>
+                    <td>Rp. 3000.000</td>
                     <td>
                         <a href="#" class="btn btn-sm btn-warning">Edit</a>
                         <a href="#" class="btn btn-sm btn-danger">Delete</a>

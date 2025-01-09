@@ -30,8 +30,8 @@
     </li>
     
     <!-- Nav Item - Customer -->
-    <li class="nav-item">
-        <a class="nav-link" href="#">
+    <li class="nav-item {{ request()->routeIs('customer.index') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('customer.index') }}">
             <i class="fas fa-fw fa-user"></i>
             <span>Customer</span>
         </a>
