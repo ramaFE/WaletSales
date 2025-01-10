@@ -5,9 +5,20 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
+use Laravel\Fortify\Fortify;
 
 // Route untuk Dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+// Route untuk register
+Fortify::registerView(function () {
+    return view('auth.register');
+});
+
+// Route untuk login
+Fortify::loginView(function () {
+    return view('auth.login');
+});
 
 // Route untuk Barang Masuk dan Manajemen Produk
 Route::prefix('product')->group(function () {
