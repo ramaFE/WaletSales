@@ -4,33 +4,12 @@
 @section('content')
 <div class="container">
     <h1>Barang Masuk</h1>
-    <div class="form-section">
-        <h2>Form Input</h2>
-        <form action="/barang-masuk/store" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="product_code">Kode Produk:</label>
-                <input type="text" id="product_code" name="product_code" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="product_name">Nama Barang:</label>
-                <input type="text" id="product_name" name="product_name" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="product_dimension">Berat:</label>
-                <input type="text" id="product_dimension" name="product_dimension" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="product_unit">Harga:</label>
-                <input type="number" id="product_unit" name="product_unit" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="product_total">Total:</label>
-                <input type="number" id="product_total" name="product_total" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+
+    @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
     </div>
+    @endif
 
     <div class="product-list-section">
         <h2>List Barang</h2>
@@ -48,42 +27,27 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach($products as $key => $product)
                 <tr>
-                    <td>1</td>
-                    <td>budi</td>
-                    <td>Patahan</td>
-                    <td>200</td>
-                    <td>Rp. 5000</td>
-                    <td>Rp. 1000.000</td>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $product['kode_produk'] }}</td>
+                    <td>{{ $product['nama_barang'] }}</td>
+                    <td>{{ $product['berat'] }}</td>
+                    <td>{{ number_format($product['harga'], 0, ',', '.') }}</td>
+                    <td>{{ number_format($product['total'], 0, ',', '.') }}</td>
                     <td>
-                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="{{ route('product.edit', ['id' => $product['id']]) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ route('product.destroy', ['id' => $product['id']]) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus barang ini?')">Hapus</button>
+                        </form>
                     </td>
                 </tr>
-                    <td>2</td>
-                    <td>budi</td>
-                    <td>Patah KW</td>
-                    <td>500</td>
-                    <td>Rp. 4000</td>
-                    <td>Rp. 2000.000</td>
-                    <td>
-                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
-                    <td>3</td>
-                    <td>budi</td>
-                    <td>Kakian</td>
-                    <td>1000</td>
-                    <td>Rp. 3000</td>
-                    <td>Rp. 3000.000</td>
-                    <td>
-                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
+        <a href="{{ route('product.create') }}" class="btn btn-primary">Tambah Barang</a>
     </div>
 </div>
 @endsection

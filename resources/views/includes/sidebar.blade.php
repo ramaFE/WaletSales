@@ -38,8 +38,8 @@
     </li>
     
     <!-- Nav Item - Penjualan -->
-    <li class="nav-item">
-        <a class="nav-link" href="#">
+    <li class="nav-item {{ request()->routeIs('sales.index') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('sales.index') }}">
             <i class="fas fa-fw fa-chart-bar"></i>
             <span>Penjualan</span>
         </a>
