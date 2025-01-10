@@ -9,8 +9,9 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>@yield('title')</title>
-
+    <title>@yield('title', 'Gudang EAJM')</title>
+    
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
     @include('includes.style')
 
 </head>

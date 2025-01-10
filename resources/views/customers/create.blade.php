@@ -10,20 +10,60 @@
         @csrf
 
         <div class="mb-3">
-            <label for="customer_code" class="form-label">Customer Code</label>
-            <input type="text" id="customer_code" name="customer_code" class="form-control" >
+            <label for="code" class="form-label">Customer Code</label>
+            <input 
+                type="text" 
+                id="code" 
+                name="code" 
+                class="form-control @error('code') is-invalid @enderror" 
+                value="{{ old('code') }}" 
+                placeholder="Enter customer code" 
+                required>
+            @error('code')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
+        
         <div class="mb-3">
-            <label for="customer_name" class="form-label">Customer Name</label>
-            <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="Enter customer name" required>
+            <label for="name" class="form-label">Customer Name</label>
+            <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                class="form-control @error('name') is-invalid @enderror" 
+                value="{{ old('name') }}" 
+                placeholder="Enter customer name" 
+                required>
+            @error('name')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
+        
         <div class="mb-3">
             <label for="contact" class="form-label">Contact</label>
-            <input type="text" id="contact" name="contact" class="form-control" placeholder="Enter contact number">
+            <input 
+                type="text" 
+                id="contact" 
+                name="contact" 
+                class="form-control @error('contact') is-invalid @enderror" 
+                value="{{ old('contact') }}" 
+                placeholder="Enter contact number">
+            @error('contact')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
+        
         <div class="mb-3">
             <label for="address" class="form-label">Address</label>
-            <textarea id="address" name="address" class="form-control" placeholder="Enter address" required></textarea>
+            <textarea 
+                id="address" 
+                name="address" 
+                class="form-control @error('address') is-invalid @enderror" 
+                placeholder="Enter address" 
+                required>{{ old('address') }}</textarea>
+            @error('address')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="text-center">
@@ -31,7 +71,7 @@
         </div>
     </form>
     
-    <a href="{{ route('customer.index') }}" class="btn btn-secondary" >
+    <a href="{{ route('customer.index') }}" class="btn btn-secondary">
         Daftar Customer
     </a>
 </div>

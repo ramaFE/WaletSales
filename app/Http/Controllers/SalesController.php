@@ -3,147 +3,94 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Sale;
+use App\Models\SalesItem;
+use App\Models\Customer;
+use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class SalesController extends Controller
 {
-    // Menampilkan daftar sales order
     public function index()
     {
-        // Data dummy untuk daftar sales order
-        $sales = [
-            [
-                'no' => 1,
-                'delivery_order' => 'DO-001',
-                'customer' => 'Surya',
-                'address' => 'boomlama94A RT 2 RW 3',
-                'total' => 15000,
-            ],
-            [
-                'no' => 2,
-                'delivery_order' => 'DO-002',
-                'customer' => 'Budi',
-                'address' => 'Jl. Mawar No. 10',
-                'total' => 20000,
-            ],
-        ];
-
+        $sales = Sale::with('customer')->get(); // Ambil data sales beserta relasi customer
         return view('sales.index', compact('sales'));
     }
 
-    // Menampilkan form untuk membuat sales order
     public function create()
     {
-        return view('sales.create');
+        $customers = Customer::all(); // Ambil semua data customer
+        $products = Product::all();  // Ambil semua data produk
+        return view('sales.create', compact('customers', 'products'));
     }
 
-    // Menyimpan sales order baru
     public function store(Request $request)
     {
         // Validasi input
         $validated = $request->validate([
-            'delivery_order' => 'required|string',
-            'customer' => 'required|string',
-            'kode_barang' => 'required|array',
-            'nama_barang' => 'required|array',
-            'berat' => 'required|array',
-            'harga' => 'required|array',
+            'delivery_order' => 'required|string|unique:sales,delivery_order',
+            'customer_id' => 'required|exists:customers,id',
+            'products' => 'required|array',
+            'products.*.id' => 'exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
         ]);
 
-        // Proses penyimpanan data ke database (contoh sederhana)
-        // Data disimpan, misalnya:
-        // Sales::create($validated);
+        // Simpan data ke tabel sales
+        $sale = Sale::create([
+            'delivery_order' => $validated['delivery_order'],
+            'customer_id' => $validated['customer_id'],
+            'total' => 0, // Awalnya 0, akan dihitung ulang
+        ]);
 
-        return redirect()->route('sales.index')->with('success', 'Sales order berhasil dibuat.');
+        // Simpan data ke tabel sales_items
+        $total = 0;
+        foreach ($validated['products'] as $product) {
+            $productData = Product::findOrFail($product['id']);
+            $subtotal = $productData->harga * $product['quantity'];
+            $total += $subtotal;
+
+            SalesItem::create([
+                'sale_id' => $sale->id,
+                'product_id' => $productData->id,
+                'quantity' => $product['quantity'],
+                'subtotal' => $subtotal,
+            ]);
+        }
+
+        // Update total di tabel sales
+        $sale->update(['total' => $total]);
+
+        return redirect()->route('sales.index')->with('success', 'Sales order berhasil dibuat!');
     }
 
-    // Menampilkan detail sales order berdasarkan nomor order
     public function show($id)
     {
-        // Data dummy untuk detail sales order
-        $sale = [
-            'no' => $id,
-            'created_at' => '19 Dec 2024',
-            'due_date' => '20 Dec 2024',
-            'delivery_order' => 'DO-001',
-            // 'customer' => 'Surya',
-            // 'address' => 'boomlama94A RT 2 RW 3',
-            // 'email' => 'surya@gmail.com',
-            // 'phone' => '089562',
-            'items' => [
-                [
-                    'kode_produk' => 'BRG-001',
-                    'nama_barang' => 'air putih 12mm',
-                    'berat' => 1000,
-                    'harga' => 5000,
-                    'total' => 15000,
-                ],
-            ],
-            'total' => 15000, // Total langsung dari subtotal tanpa PPN
-        ];
-
-        // Return blade dalam format AJAX
-        return response()->json([
-            'html' => view('sales.show', compact('sale'))->render(),
-        ]);
+        $sale = Sale::with('items.product', 'customer')->findOrFail($id); // Ambil data sales beserta item dan customer
+        return view('sales.show', compact('sale'));
     }
 
     public function destroy($id)
     {
-        // Contoh penghapusan data di database menggunakan Eloquent
-        // Sales::findOrFail($id)->delete();
+        $sale = Sale::findOrFail($id);
+        $sale->delete(); // Hapus data dari database
 
-        // Untuk saat ini, anggap penghapusan berhasil
         return response()->json([
             'status' => 'success',
-            'message' => 'Sales order berhasil dihapus.'
+            'message' => 'Sales order berhasil dihapus.',
         ]);
     }
 
-    // Generate invoice dalam bentuk PDF
-    public function generateInvoice($id = 1)
+    public function generateInvoice($id)
     {
-        // Data dummy untuk invoice
-        $order = [
-            'order_number' => 'INV-' . $id,
-            'delivery_order' => 'DO-' . $id,
-            'customer' => [
-                'name' => 'Surya',
-            ],
-            'items' => [
-                [
-                    'kode_produk' => 'BRG-001',
-                    'nama_barang' => 'air putih 12mm',
-                    'berat' => 1000,
-                    'harga' => 5000,
-                    'total' => 15000,
-                ],
-            ],
-            'subtotal' => 15000,
-            'total' => 15000,
-        ];
-
-        return Pdf::loadView('sales.invoice', compact('order'))->stream('Invoice-' . $id . '.pdf');
+        $sale = Sale::with('items.product', 'customer')->findOrFail($id); // Ambil data sales untuk invoice
+        $pdf = Pdf::loadView('sales.invoice', compact('sale'));
+        return $pdf->stream('Invoice-' . $sale->delivery_order . '.pdf');
     }
 
-    // Generate surat jalan dalam bentuk PDF
-    public function generateSuratJalan($id = 1)
+    public function generateSuratJalan($id)
     {
-        // Data dummy untuk surat jalan
-        $customer = [
-            'name' => 'Surya',
-            'address' => 'boomlama94A RT 2 RW 3',
-        ];
-
-        $items = [
-            [
-                'nama_barang' => 'air putih 12mm',
-                'berat' => 1000,
-            ],
-        ];
-
-        $delivery_order = 'DO-' . $id;
-
-        return Pdf::loadView('sales.surat_jalan', compact('customer', 'items', 'delivery_order'))->stream('SuratJalan-' . $id . '.pdf');
+        $sale = Sale::with('items.product', 'customer')->findOrFail($id); // Ambil data sales untuk surat jalan
+        $pdf = Pdf::loadView('sales.surat_jalan', compact('sale'));
+        return $pdf->stream('SuratJalan-' . $sale->delivery_order . '.pdf');
     }
 }

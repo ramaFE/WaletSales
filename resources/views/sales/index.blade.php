@@ -6,7 +6,8 @@
 <div class="container">
     <h2>Sales Order List</h2>
     <input type="text" placeholder="Search customer" id="search" class="form-control mb-3">
-    <table class="table">
+    
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <th>No.</th>
@@ -18,37 +19,40 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Iterasi data dummy dari controller -->
-            @foreach ($sales as $index => $order)
+            @forelse ($sales as $index => $order)
             <tr>
-                <!-- Nomor urut -->
                 <td>{{ $loop->iteration }}</td>
-                <!-- Kolom data -->
-                <td>{{ $order['delivery_order'] }}</td>
-                <td>{{ $order['customer'] }}</td>
-                <td>{{ $order['address'] }}</td>
-                <td>Rp {{ number_format($order['total'], 0, ',', '.') }}</td>
+                <td>{{ $order->delivery_order }}</td>
+                <td>{{ $order->customer->name }}</td>
+                <td>{{ $order->customer->address }}</td>
+                <td>Rp {{ number_format($order->total, 0, ',', '.') }}</td>
                 <td>
-                    <!-- Tombol View -->
-                    <button class="btn btn-primary btn-sm view-sale" data-id="{{ $order['no'] }}">View</button>
+                    <button class="btn btn-primary btn-sm view-sale" data-id="{{ $order->id }}">View</button>
+                    <form action="{{ route('sales.destroy', $order->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus sales order ini?')">Delete</button>
+                    </form>
                 </td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" class="text-center">Tidak ada data sales order.</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
-    <!-- Tombol untuk membuat Sales Order baru -->
     <a href="{{ route('sales.create') }}" class="btn btn-primary">Create Sales Order</a>
 
     <!-- Modal -->
-    <div class="modal fade" id="saleModal" tabindex="-1" >
+    <div class="modal fade" id="saleModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="saleModalLabel">Order Details</h5>
                 </div>
                 <div class="modal-body" id="saleModalBody">
-                    <!-- Loader sementara saat data sedang dimuat -->
                     <div class="text-center">
                         <p>Loading...</p>
                     </div>
@@ -58,7 +62,6 @@
     </div>
 </div>
 
-<!-- Load app.js via Vite -->
 @vite(['resources/js/app.js'])
 
 @endsection

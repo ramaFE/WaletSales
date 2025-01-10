@@ -6,32 +6,38 @@
 <div class="container">
     <h1 class="mb-4">Edit Customer</h1>
 
-    <form action="{{ route('customer.update', $customer->id ?? 1) }}" method="POST">
+    <form action="{{ route('customer.update', $customer->id) }}" method="POST">
         @csrf
         @method('PUT')
 
         <div class="mb-3">
-            <label for="customer_code" class="form-label">Customer Code</label>
+            <label for="code" class="form-label">Customer Code</label>
             <input 
                 type="text" 
-                id="customer_code" 
-                name="customer_code" 
-                class="form-control" 
-                value="{{ old('customer_code', $customer->customer_code ?? '1234') }}" 
+                id="code" 
+                name="code" 
+                class="form-control @error('code') is-invalid @enderror" 
+                value="{{ old('code', $customer->code) }}" 
                 placeholder="Enter customer code" 
                 required>
+            @error('code')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         
         <div class="mb-3">
-            <label for="customer_name" class="form-label">Customer Name</label>
+            <label for="name" class="form-label">Customer Name</label>
             <input 
                 type="text" 
-                id="customer_name" 
-                name="customer_name" 
-                class="form-control" 
-                value="{{ old('customer_name', $customer->customer_name ?? 'Hong A') }}" 
+                id="name" 
+                name="name" 
+                class="form-control @error('name') is-invalid @enderror" 
+                value="{{ old('name', $customer->name) }}" 
                 placeholder="Enter customer name" 
                 required>
+            @error('name')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         
         <div class="mb-3">
@@ -40,9 +46,12 @@
                 type="text" 
                 id="contact" 
                 name="contact" 
-                class="form-control" 
-                value="{{ old('contact', $customer->contact ?? '081321654') }}" 
+                class="form-control @error('contact') is-invalid @enderror" 
+                value="{{ old('contact', $customer->contact) }}" 
                 placeholder="Enter contact number">
+            @error('contact')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         
         <div class="mb-3">
@@ -50,9 +59,12 @@
             <textarea 
                 id="address" 
                 name="address" 
-                class="form-control" 
+                class="form-control @error('address') is-invalid @enderror" 
                 placeholder="Enter address" 
-                required>{{ old('address', $customer->address ?? 'Jalan Teluk Gong') }}</textarea>
+                required>{{ old('address', $customer->address) }}</textarea>
+            @error('address')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="text-center">

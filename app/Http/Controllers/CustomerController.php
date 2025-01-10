@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Customer;
 
 class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $_request)
+    public function index()
     {
-        {
-            return view('customers.index');
-        }
+        $customers = Customer::all(); // Ambil semua data customer
+        return view('customers.index', compact('customers'));
     }
 
     /**
@@ -21,9 +21,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        {
-            return view('customers.create');
-        }
+        return view('customers.create');
     }
 
     /**
@@ -31,15 +29,18 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        // Validasi input
+        $validated = $request->validate([
+            'code' => 'required|string|unique:customers,code',
+            'name' => 'required|string|max:255',
+            'contact' => 'nullable|string|max:15',
+            'address' => 'nullable|string|max:500',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        // Simpan data ke database
+        Customer::create($validated);
+
+        return redirect()->route('customer.index')->with('success', 'Pelanggan berhasil ditambahkan!');
     }
 
     /**
@@ -47,25 +48,7 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        // Data dummy untuk mencoba
-        $customer = [
-            [
-                'id' => $id,
-                'code' => '1234',
-                'name' => 'Hong A',
-                'contact' => '081321654',
-                'address' => 'Jalan Teluk Gong',
-            ],
-            [
-                'id' => $id,
-                'code' => '1345',
-                'name' => 'Hong A',
-                'contact' => '081321654',
-                'address' => 'Jalan Teluk Gong',
-            ],
-
-        ];
-    
+        $customer = Customer::findOrFail($id); // Ambil data customer berdasarkan ID
         return view('customers.edit', compact('customer'));
     }
 
@@ -74,23 +57,30 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Untuk testing, cetak data input
-        dd($request->all());
+        // Validasi input
+        $validated = $request->validate([
+            'code' => 'required|string|unique:customers,code,' . $id,
+            'name' => 'required|string|max:255',
+            'contact' => 'nullable|string|max:15',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        // Update data di database
+        $customer = Customer::findOrFail($id);
+        $customer->update($validated);
+
+        return redirect()->route('customer.index')->with('success', 'Pelanggan berhasil diperbarui!');
     }
-    
 
     /**
      * Remove the specified resource from storage.
      */
-    // Menghapus customer (simulasi)
     public function destroy($id)
     {
-        // Filter data dummy untuk menghapus item berdasarkan ID
-        $remainingCustomers = collect($this->customers)->filter(function ($customer) use ($id) {
-            return $customer['id'] != $id;
-        });
+        $customer = Customer::findOrFail($id); // Cari data customer
+        $customer->delete(); // Hapus dari database
 
-        // Menampilkan data yang tersisa sebagai simulasi
-        return back()->with('success', 'Customer deleted successfully!')->with('customers', $remainingCustomers);
+        return redirect()->route('customer.index')->with('success', 'Pelanggan berhasil dihapus!');
     }
 }
+
