@@ -3,158 +3,147 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade as PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SalesController extends Controller
 {
+    // Menampilkan daftar sales order
     public function index()
     {
-        // Data penjualan (harusnya dari database)
+        // Data dummy untuk daftar sales order
         $sales = [
             [
                 'no' => 1,
-                'kode_barang' => 'BRG-001',
-                'delivery_order' => 'SJ-30e363c0',
+                'delivery_order' => 'DO-001',
                 'customer' => 'Surya',
-                'address' => 'boomlama94...',
-                'total' => 'Rp. 16.650,00',
+                'address' => 'boomlama94A RT 2 RW 3',
+                'total' => 15000,
             ],
             [
                 'no' => 2,
-                'kode_barang' => 'BRG-002',
-                'delivery_order' => 'SJ-1a1667e0',
-                'customer' => 'Surya',
-                'address' => 'boomlama94...',
-                'total' => 'Rp. 16.650,00',
+                'delivery_order' => 'DO-002',
+                'customer' => 'Budi',
+                'address' => 'Jl. Mawar No. 10',
+                'total' => 20000,
             ],
         ];
 
         return view('sales.index', compact('sales'));
     }
 
-    public function show($id)
-    {
-        // Dummy data penjualan berdasarkan ID
-        $sales = [
-            1 => [
-                'no' => 1,
-                'kode_barang' => 'BRG-001',
-                'delivery_order' => 'SJ-30e363c0',
-                'customer' => 'Surya',
-                'address' => 'boomlama94...',
-                'total' => 'Rp. 16.650,00',
-                'items' => [
-                    [
-                        'No' => 1,
-                        'Kode Barang' => 'budi',
-                        'Nama Barang' => 'Patahan',
-                        'Berat' => 200,
-                        'Harga' => 5000,
-                        'Total' => 1000000,
-                    ],
-                ],
-            ],
-            2 => [
-                'no' => 2,
-                'kode_barang' => 'BRG-002',
-                'delivery_order' => 'SJ-1a1667e0',
-                'customer' => 'Surya',
-                'address' => 'boomlama94...',
-                'total' => 'Rp. 16.650,00',
-                'items' => [
-                    [
-                        'No' => 2,
-                        'Kode Barang' => 'budi',
-                        'Nama Barang' => 'Patah KW',
-                        'Berat' => 500,
-                        'Harga' => 4000,
-                        'Total' => 2000000,
-                    ],
-                ],
-            ],
-        ];
-
-        if (!isset($sales[$id])) {
-            abort(404, 'Data tidak ditemukan');
-        }
-
-        $sale = $sales[$id];
-
-        // Return data ke view
-        return response()->json([
-            'html' => view('sales.view', compact('sale'))->render(),
-        ]);
-    }
-
+    // Menampilkan form untuk membuat sales order
     public function create()
     {
         return view('sales.create');
     }
 
+    // Menyimpan sales order baru
     public function store(Request $request)
     {
         // Validasi input
         $validated = $request->validate([
-            'kode_barang.*' => 'required',
-            'delivery_order' => 'required',
-            'customer' => 'required',
-            'nama_barang.*' => 'required',
-            'berat.*' => 'required|numeric',
-            'harga.*' => 'required|numeric',
-            'subtotal' => 'required|numeric',
-        ], [
-            'required' => ':attribute harus diisi.',
-            'numeric' => ':attribute harus berupa angka.',
+            'delivery_order' => 'required|string',
+            'customer' => 'required|string',
+            'kode_barang' => 'required|array',
+            'nama_barang' => 'required|array',
+            'berat' => 'required|array',
+            'harga' => 'required|array',
         ]);
 
-        // Logika penyimpanan ke database (sesuaikan dengan model)
-        // Contoh: Sales::create($validated);
+        // Proses penyimpanan data ke database (contoh sederhana)
+        // Data disimpan, misalnya:
+        // Sales::create($validated);
 
-        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dibuat!');
+        return redirect()->route('sales.index')->with('success', 'Sales order berhasil dibuat.');
     }
 
-    public function generateInvoice()
+    // Menampilkan detail sales order berdasarkan nomor order
+    public function show($id)
     {
-        // Dummy data produk
-        $dummyData = [
-            [
-                'id' => 1,
-                'kode_produk' => 'budi',
-                'nama_barang' => 'Patahan',
-                'berat' => 200,
-                'harga' => 5000,
-                'total' => 1000000,
+        // Data dummy untuk detail sales order
+        $sale = [
+            'no' => $id,
+            'created_at' => '19 Dec 2024',
+            'due_date' => '20 Dec 2024',
+            'delivery_order' => 'DO-001',
+            // 'customer' => 'Surya',
+            // 'address' => 'boomlama94A RT 2 RW 3',
+            // 'email' => 'surya@gmail.com',
+            // 'phone' => '089562',
+            'items' => [
+                [
+                    'kode_produk' => 'BRG-001',
+                    'nama_barang' => 'air putih 12mm',
+                    'berat' => 1000,
+                    'harga' => 5000,
+                    'total' => 15000,
+                ],
             ],
-            [
-                'id' => 2,
-                'kode_produk' => 'budi',
-                'nama_barang' => 'Patah KW',
-                'berat' => 500,
-                'harga' => 4000,
-                'total' => 2000000,
+            'total' => 15000, // Total langsung dari subtotal tanpa PPN
+        ];
+
+        // Return blade dalam format AJAX
+        return response()->json([
+            'html' => view('sales.show', compact('sale'))->render(),
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        // Contoh penghapusan data di database menggunakan Eloquent
+        // Sales::findOrFail($id)->delete();
+
+        // Untuk saat ini, anggap penghapusan berhasil
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Sales order berhasil dihapus.'
+        ]);
+    }
+
+    // Generate invoice dalam bentuk PDF
+    public function generateInvoice($id = 1)
+    {
+        // Data dummy untuk invoice
+        $order = [
+            'order_number' => 'INV-' . $id,
+            'delivery_order' => 'DO-' . $id,
+            'customer' => [
+                'name' => 'Surya',
             ],
+            'items' => [
+                [
+                    'kode_produk' => 'BRG-001',
+                    'nama_barang' => 'air putih 12mm',
+                    'berat' => 1000,
+                    'harga' => 5000,
+                    'total' => 15000,
+                ],
+            ],
+            'subtotal' => 15000,
+            'total' => 15000,
+        ];
+
+        return Pdf::loadView('sales.invoice', compact('order'))->stream('Invoice-' . $id . '.pdf');
+    }
+
+    // Generate surat jalan dalam bentuk PDF
+    public function generateSuratJalan($id = 1)
+    {
+        // Data dummy untuk surat jalan
+        $customer = [
+            'name' => 'Surya',
+            'address' => 'boomlama94A RT 2 RW 3',
+        ];
+
+        $items = [
             [
-                'id' => 3,
-                'kode_produk' => 'budi',
-                'nama_barang' => 'Kakian',
+                'nama_barang' => 'air putih 12mm',
                 'berat' => 1000,
-                'harga' => 3000,
-                'total' => 3000000,
             ],
         ];
 
-        // Hitung subtotal
-        $subtotal = array_sum(array_column($dummyData, 'total'));
+        $delivery_order = 'DO-' . $id;
 
-        // Siapkan data untuk view
-        $data = [
-            'dummyData' => $dummyData,
-            'subtotal' => $subtotal,
-            'tanggal' => now()->format('d F Y'),
-        ];
-
-        // Render PDF
-        $pdf = PDF::loadView('invoice', $data);
-        return $pdf->stream('Invoice.pdf');
+        return Pdf::loadView('sales.surat_jalan', compact('customer', 'items', 'delivery_order'))->stream('SuratJalan-' . $id . '.pdf');
     }
 }

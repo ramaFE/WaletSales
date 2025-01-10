@@ -3,7 +3,6 @@
 
 @section('content')
 <div class="container">
-    <h1>Barang Masuk</h1>
 
     @if(session('success'))
     <div class="alert alert-success">
