@@ -6,22 +6,32 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
 use Laravel\Fortify\Fortify;
-
-// Dashboard Route
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+use App\Http\Controllers\CustomAuthenticatedSessionController;
 
 // Fortify Register & Login Views
 Fortify::registerView(fn() => view('auth.register'));
 Fortify::loginView(fn() => view('auth.login'));
 
+Route::post('/logout', [CustomAuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+
+// Dashboard Route
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
+
 // Product Routes
-Route::resource('product', ProductController::class)->except(['show']);
+Route::resource('product', ProductController::class)
+    ->middleware(['auth'])
+    ->except(['show']);
 
 // Customer Routes
-Route::resource('customer', CustomerController::class)->except(['show']);
+Route::resource('customer', CustomerController::class)
+    ->middleware(['auth'])
+    ->except(['show']);
 
 // Sales Routes
-Route::prefix('sales')->group(function () {
+Route::prefix('sales')->middleware(['auth'])->group(function () {
     Route::get('/', [SalesController::class, 'index'])->name('sales.index');
     Route::get('/create', [SalesController::class, 'create'])->name('sales.create');
     Route::post('/', [SalesController::class, 'store'])->name('sales.store');

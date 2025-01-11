@@ -33,10 +33,15 @@
     <div class="modal-footer">
         <a href="{{ route('sales.generateInvoice', $sale->id) }}" class="btn btn-primary">Cetak Invoice</a>
         <a href="{{ route('sales.generateSuratJalan', $sale->id) }}" class="btn btn-secondary">Cetak Surat Jalan</a>
-        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger">Hapus</button>
-        </form>
+
+        <!-- Tombol Hapus -->
+        <button 
+            class="btn btn-danger btn-sm open-delete-popup" 
+            data-url="{{ route('sales.destroy', $order->id) }}" 
+            data-name="{{ $order->customer->name }}" 
+            data-code="{{ $order->delivery_order }}">
+            Hapus
+        </button>
+    
     </div>
 </div>

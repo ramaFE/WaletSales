@@ -13,7 +13,7 @@ class SalesController extends Controller
 {
     public function index()
     {
-        $sales = Sale::with('customer')->get(); // Ambil data sales beserta relasi customer
+        $sales = Sale::with('customer')->paginate(10); // Ambil data sales beserta relasi customer,10 data per halaman
         return view('sales.index', compact('sales'));
     }
 

@@ -10,11 +10,11 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
-use Laravel\Fortify\Contracts\RegisterViewResponse;
-use Laravel\Fortify\Contracts\LoginViewResponse;
-use Laravel\Fortify\Http\Responses\SimpleViewResponse;
+use Laravel\Fortify\Contracts\CreatesNewUsers; // Tambahkan ini
+use Laravel\Fortify\Contracts\RegisterViewResponse; // Tambahkan ini
+use Laravel\Fortify\Contracts\LoginViewResponse; // Tambahkan ini
+use Laravel\Fortify\Http\Responses\SimpleViewResponse; // Tambahkan ini
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -23,14 +23,7 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Tambahkan binding untuk RegisterViewResponse dan LoginViewResponse
-        $this->app->singleton(RegisterViewResponse::class, function () {
-            return new SimpleViewResponse('auth.register');
-        });
-
-        $this->app->singleton(LoginViewResponse::class, function () {
-            return new SimpleViewResponse('auth.login');
-        });
+        //
     }
 
     /**
@@ -38,29 +31,36 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Set action untuk pembuatan user baru, update password, dsb.
+        // Binding kontrak CreatesNewUsers ke implementasi CreateNewUser
+        $this->app->singleton(CreatesNewUsers::class, CreateNewUser::class);
+
+        // Binding kontrak RegisterViewResponse ke implementasi SimpleViewResponse
+        $this->app->singleton(RegisterViewResponse::class, function () {
+            return new SimpleViewResponse('auth.register');
+        });
+
+        // Binding kontrak LoginViewResponse ke implementasi SimpleViewResponse
+        $this->app->singleton(LoginViewResponse::class, function () {
+            return new SimpleViewResponse('auth.login');
+        });
+
+        // Action untuk Fortify
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Rate limiter untuk login
+        // Rate Limiter
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
-            return Limit::perMinute(5)->by($throttleKey);
+            return Limit::perMinute(5)->by($request->email . $request->ip());
         });
 
-        // Rate limiter untuk two-factor
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        });
-
-        // Register view untuk halaman register
+        // View untuk register
         Fortify::registerView(function () {
             return view('auth.register');
         });
 
-        // Register view untuk halaman login
+        // View untuk login
         Fortify::loginView(function () {
             return view('auth.login');
         });

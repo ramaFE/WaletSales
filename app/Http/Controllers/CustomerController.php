@@ -12,7 +12,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::all(); // Ambil semua data customer
+        $customers = Customer::paginate(10); // Menampilkan 10 data per halaman
         return view('customers.index', compact('customers'));
     }
 

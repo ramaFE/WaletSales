@@ -2,7 +2,7 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('layouts.app ') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('dashboard') }}">
             <img class="img-profile rounded-circle" 
             src="{{ url('sb/img/logo-eajm.jpg') }}" 
             alt="Logo EAJM"
