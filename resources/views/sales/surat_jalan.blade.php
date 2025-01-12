@@ -22,7 +22,7 @@
         <table class="no-border" style="width: 100%;">
             <tr>
                 <td style="width: 20%;">
-                    <img src="{{ public_path('sb/img/logo-eajm.jpg') }}" class="logo">
+                    <img src="{{ asset('logo-eajm.jpg') }}" class="logo">
                 </td>
                 <td>
                     <div style="text-align: left;">

@@ -71,6 +71,25 @@
         </div>
     </div>
     
+    <!-- Floating Chatbot Button -->
+    <div id="chatbot-button">
+        <button class="chatbot-toggle">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div id="chatbot-modal" class="chatbot-modal">
+        <div class="chatbot-header">
+            <h5>Chatbot</h5>
+            <button id="close-chatbot" class="close-btn">&times;</button>
+        </div>
+        <div class="chatbot-body">
+            <div id="chat-messages" class="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Ketik perintah..." />
+            <button id="send-message" class="btn-send">Kirim</button>
+        </div>
+    </div>
     @include('includes.script')
 </body>
 

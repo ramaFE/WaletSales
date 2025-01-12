@@ -19,7 +19,7 @@
         <table style="width: 100%; margin-bottom: 10px;">
             <tr>
                 <td>
-                    <img src="{{ public_path('sb/img/logo-eajm.jpg') }}" style="height: 75px;">
+                    <img src="{{ asset('logo-eajm.jpg') }}" style="height: 75px;">
                 </td>
                 <td style="text-align: center;">
                     <h3>PT. ENGGAR AJI JAYA MULIA</h3>
