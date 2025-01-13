@@ -21,17 +21,16 @@
     <div>
         <table class="no-border" style="width: 100%;">
             <tr>
-                <td style="width: 20%;">
-                    <img src="{{ asset('logo-eajm.jpg') }}" class="logo">
+                <td style = "text-align: center">
+                    <img class="img-profile rounded-circle" 
+                    src="{{ public_path('logo-eajm.jpg') }}" 
+                    alt="Logo EAJM"
+                    style="width: 100px; height: 85px;">
                 </td>
-                <td>
-                    <div style="text-align: left;">
-                        <h4 style="margin: 0; padding: 0;">PT. ENGGAR AJI JAYA MULIA</h4>
-                        <p style="margin: 0; padding: 0; font-size: 12px;">
-                            Jalan Kehakiman XI No. C-13 Tanah Tinggi, Kota Tangerang, Banten - 15119 <br>
-                            Telp: 0821-2212-1913 | Email: info@ptbim.co.id
-                        </p>
-                    </div>
+                <td style="text-align: center;">
+                    <h3>PT.ENGGAR AJI JAYA MULIA</h3>
+                    <p>Jl. Karang Bendo No.43B, Karangrejo, Kec. Gajahmungkur, Kota Semarang, Jawa Tengah 50231</p>
+                    <p>Telp: 0811-2729-000 | Email: pt.eajm@gmail.com</p>
                 </td>
                 <td style="text-align: right;">
                     <p><strong>Tanggal:</strong> {{ now()->format('d F Y') }}</p>
@@ -41,7 +40,7 @@
             </tr>
         </table>
         <h3 style="text-align: center; margin: 0;">SURAT JALAN</h3>
-        <p style="text-align: center; margin: 0; margin-bottom: 20px;">No: {{ $delivery_order }}</p>
+        <p style="text-align: center; margin: 0; margin-bottom: 20px;">No: {{ $sale->delivery_order }}</p>
     </div>
 
     <!-- Tabel Data Barang -->
@@ -54,11 +53,11 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($items as $key => $item)
+            @foreach ($sale->items as $key => $item)
             <tr>
                 <td>{{ $key + 1 }}</td>
-                <td>{{ $item['nama_barang'] }}</td>
-                <td>{{ number_format($item['berat'], 0, ',', '.') }}</td>
+                <td>{{ $item->nama_barang }}</td>
+                <td>{{ number_format($item->berat, 0, ',', '.') }}</td>
             </tr>
             @endforeach
         </tbody>

@@ -5,4 +5,4 @@
     rel="stylesheet">
     
 <!-- Include CSS via Vite -->
-@vite(['resources/css/sb-admin-2.min.css', 'resources/css/product.css'])
+@vite(['resources/css/sb-admin-2.min.css', 'resources/css/product.css', 'resources/css/chat-bot.css'])

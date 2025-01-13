@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
     @include('includes.style')
 </head>
 <body class="bg-gradient-primary">
@@ -13,6 +15,7 @@
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-5">
                         <div class="text-center">
+                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle" >
                             <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
                         </div>
                         <form method="POST" action="{{ route('register') }}">

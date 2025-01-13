@@ -18,17 +18,20 @@
     <div style="border-bottom: 2px solid black; margin-bottom: 20px;">
         <table style="width: 100%; margin-bottom: 10px;">
             <tr>
-                <td>
-                    <img src="{{ asset('logo-eajm.jpg') }}" style="height: 75px;">
+                <td style="text-align: center">
+                    <img class="img-profile rounded-circle" 
+                    src="{{ public_path('logo-eajm.jpg') }}" 
+                    alt="Logo EAJM"
+                    style="width: 100px; height: 85px;">
                 </td>
                 <td style="text-align: center;">
-                    <h3>PT. ENGGAR AJI JAYA MULIA</h3>
-                    <p>Jalan Kehakiman XI No. C-13 Tanah Tinggi, Kota Tangerang, Banten - 15119</p>
-                    <p>Telp: 0821-2212-1913 | Email: info@ptbim.co.id</p>
+                    <h3>PT.ENGGAR AJI JAYA MULIA</h3>
+                    <p>Jl. Karang Bendo No.43B, Karangrejo, Kec. Gajahmungkur, Kota Semarang, Jawa Tengah 50231</p>
+                    <p>Telp: 0811-2729-000 | Email: pt.eajm@gmail.com</p>
                 </td>
                 <td style="text-align: center;">
                     <h4>INVOICE</h4>
-                    <p>No: {{ $order['order_number'] }}</p>
+                    <p>No: {{ $sale->id }}</p>
                 </td>
             </tr>
         </table>
@@ -38,9 +41,9 @@
     <table>
         <tr>
             <td><strong>Customer Name:</strong></td>
-            <td>{{ $order['customer']['name'] }}</td>
+            <td>{{ $sale->customer->name }}</td>
             <td><strong>PO No:</strong></td>
-            <td>{{ $order['delivery_order'] }}</td>
+            <td>{{ $sale->delivery_order }}</td>
         </tr>
     </table>
 
@@ -52,26 +55,26 @@
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
                 <th>Berat (gr)</th>
-                <th>Harga Satuan</th>
+                <th>Harga</th>
                 <th>Total</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($order['items'] as $key => $item)
+            @foreach ($sale->items as $key => $item)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $item['kode_produk'] }}</td>
-                    <td>{{ $item['nama_barang'] }}</td>
-                    <td>{{ number_format($item['berat'], 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item['harga'], 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item['total'], 0, ',', '.') }}</td>
+                    <td>{{ $item->kode_produk }}</td>
+                    <td>{{ $item->nama_barang }}</td>
+                    <td>{{ number_format($item->berat, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->total, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="5" class="text-right"><strong>Subtotal</strong></td>
-                <td><strong>Rp {{ number_format($order['subtotal'], 0, ',', '.') }}</strong></td>
+                <td><strong>Rp {{ number_format($sale->subtotal, 0, ',', '.') }}</strong></td>
             </tr>
         </tfoot>
     </table>

@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_produk')->unique();
+            $table->string('kode_produk'); 
             $table->string('nama_barang');
             $table->integer('berat');
             $table->decimal('harga', 10, 2);
+            $table->decimal('total', 15, 2);
             $table->timestamps();
+
+            // Tambahkan unique constraint untuk kombinasi kode_produk dan nama_barang
+            $table->unique(['kode_produk', 'nama_barang'], 'unique_kode_produk_nama_barang');
         });
     }
     

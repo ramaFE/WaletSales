@@ -10,7 +10,7 @@
     @endif
 
     <div class="product-list-section">
-        <h2>List Barang</h2>
+        <h2>Product List</h2>
         <input type="text" placeholder="Search barang" id="search" class="form-control mb-3">
 
         <!-- Tabel Responsif -->

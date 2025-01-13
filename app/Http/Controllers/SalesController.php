@@ -8,12 +8,13 @@ use App\Models\SalesItem;
 use App\Models\Customer;
 use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class SalesController extends Controller
 {
     public function index()
     {
-        $sales = Sale::with('customer')->paginate(10); // Ambil data sales beserta relasi customer,10 data per halaman
+        $sales = Sale::with('customer')->paginate(10); // Ambil data sales beserta relasi customer, 10 data per halaman
         return view('sales.index', compact('sales'));
     }
 
@@ -26,71 +27,102 @@ class SalesController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
-        $validated = $request->validate([
-            'delivery_order' => 'required|string|unique:sales,delivery_order',
-            'customer_id' => 'required|exists:customers,id',
-            'products' => 'required|array',
-            'products.*.id' => 'exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-        ]);
+        DB::beginTransaction();
 
-        // Simpan data ke tabel sales
-        $sale = Sale::create([
-            'delivery_order' => $validated['delivery_order'],
-            'customer_id' => $validated['customer_id'],
-            'total' => 0, // Awalnya 0, akan dihitung ulang
-        ]);
-
-        // Simpan data ke tabel sales_items
-        $total = 0;
-        foreach ($validated['products'] as $product) {
-            $productData = Product::findOrFail($product['id']);
-            $subtotal = $productData->harga * $product['quantity'];
-            $total += $subtotal;
-
-            SalesItem::create([
-                'sale_id' => $sale->id,
-                'product_id' => $productData->id,
-                'quantity' => $product['quantity'],
-                'subtotal' => $subtotal,
+        try {
+            // Validasi input
+            $validated = $request->validate([
+                'delivery_order' => 'required|string|unique:sales,delivery_order',
+                'customer_id' => 'required|exists:customers,id',
+                'products' => 'required|array|min:1',
+                'products.*.kode_produk' => 'required|string|exists:products,kode_produk',
+                'products.*.nama_barang' => 'required|string',
+                'products.*.berat' => 'required|numeric|min:0.01',
+                'products.*.harga' => 'required|numeric|min:0',
+                'products.*.total' => 'required|numeric|min:0',
             ]);
+
+            // Simpan data ke tabel sales
+            $sale = Sale::create([
+                'delivery_order' => $validated['delivery_order'],
+                'customer_id' => $validated['customer_id'],
+                'subtotal' => 0, // Default nilai 0, akan diupdate nanti
+            ]);
+
+            $subtotal = 0;
+
+            foreach ($validated['products'] as $product) {
+                $subtotal += $product['total'];
+
+                // Simpan ke tabel sales_items
+                SalesItem::create([
+                    'sales_id' => $sale->id,
+                    'kode_produk' => $product['kode_produk'],
+                    'nama_barang' => $product['nama_barang'],
+                    'berat' => $product['berat'],
+                    'harga' => $product['harga'],
+                    'total' => $product['total'],
+                ]);
+
+                // Kurangi stok dari tabel products
+                $productData = Product::where('kode_produk', $product['kode_produk'])->first();
+                if ($productData && $productData->stok >= $product['berat']) {
+                    $productData->stok -= $product['berat'];
+                    $productData->save();
+                } else {
+                    \Log::error('Stok tidak mencukupi untuk produk: ' . $product['kode_produk']);
+                    throw new \Exception('Stok tidak mencukupi untuk produk ' . $product['kode_produk']);
+                }
+            }
+
+            // Update subtotal di tabel sales
+            $sale->update(['subtotal' => $subtotal]);
+
+            DB::commit();
+            return redirect()->route('sales.index')->with('success', 'Sales order berhasil dibuat!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
-
-        // Update total di tabel sales
-        $sale->update(['total' => $total]);
-
-        return redirect()->route('sales.index')->with('success', 'Sales order berhasil dibuat!');
     }
 
     public function show($id)
     {
-        $sale = Sale::with('items.product', 'customer')->findOrFail($id); // Ambil data sales beserta item dan customer
+        $sale = Sale::with('items', 'customer')->findOrFail($id);
         return view('sales.show', compact('sale'));
     }
 
     public function destroy($id)
     {
-        $sale = Sale::findOrFail($id);
-        $sale->delete(); // Hapus data dari database
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Sales order berhasil dihapus.',
-        ]);
-    }
+        try {
+            $sale = Sale::findOrFail($id);
+            $sale->delete();
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sales order berhasil dihapus.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus sales order.'
+            ], 500);
+        }
+    }    
 
     public function generateInvoice($id)
     {
-        $sale = Sale::with('items.product', 'customer')->findOrFail($id); // Ambil data sales untuk invoice
+        $sale = Sale::with('items', 'customer')->findOrFail($id);
         $pdf = Pdf::loadView('sales.invoice', compact('sale'));
         return $pdf->stream('Invoice-' . $sale->delivery_order . '.pdf');
     }
 
     public function generateSuratJalan($id)
     {
-        $sale = Sale::with('items.product', 'customer')->findOrFail($id); // Ambil data sales untuk surat jalan
-        $pdf = Pdf::loadView('sales.surat_jalan', compact('sale'));
+        $sale = Sale::with('items', 'customer')->findOrFail($id);
+        $customer = $sale->customer;
+
+        $pdf = Pdf::loadView('sales.surat_jalan', compact('sale', 'customer'));
         return $pdf->stream('SuratJalan-' . $sale->delivery_order . '.pdf');
     }
 }

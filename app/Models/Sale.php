@@ -14,11 +14,11 @@ class Sale extends Model
     protected $fillable = [
         'delivery_order',
         'customer_id', // Relasi ke tabel customers
-        'total',       // Total dari penjualan
+        'subtotal',    // Subtotal dari penjualan
     ];
 
     protected $casts = [
-        'total' => 'decimal:2',
+        'subtotal' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -32,18 +32,12 @@ class Sale extends Model
     // Relasi dengan SalesItem (satu penjualan memiliki banyak item)
     public function items()
     {
-        return $this->hasMany(SalesItem::class);
+        return $this->hasMany(SalesItem::class, 'sales_id');
     }
 
-    // Accessor: Format total menjadi string dengan format rupiah
-    public function getTotalAttribute($value)
+    public function getSubtotalAttribute()
     {
-        return 'Rp ' . number_format($value, 0, ',', '.');
+        return $this->items->sum('total'); // Ganti 'total' dengan nama kolom subtotal di tabel sales_items
     }
 
-    // Mutator: Hilangkan format rupiah sebelum menyimpan total
-    public function setTotalAttribute($value)
-    {
-        $this->attributes['total'] = str_replace(['Rp', '.', ','], '', $value);
-    }
 }

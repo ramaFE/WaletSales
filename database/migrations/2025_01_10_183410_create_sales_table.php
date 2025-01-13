@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->string('delivery_order')->unique();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->decimal('total', 10, 2)->default(0);
-            $table->timestamps();
+            $table->string('delivery_order');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->decimal('subtotal', 15, 2)->default(0);
+            $table->timestamps(); // Sudah mencakup `created_at` dan `updated_at`
         });
     }
-    
 
     /**
      * Reverse the migrations.

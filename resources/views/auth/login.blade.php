@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
     @include('includes.style')
 </head>
 <body class="bg-gradient-primary">
@@ -13,8 +15,9 @@
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-5">
                         <div class="text-center">
-                            <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
-                        </div>
+                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle" >
+                            <h1 class="h4 text-gray-900 mb-4">Welcome Back to Walets</h1>
+                        </div>                        
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="form-group">

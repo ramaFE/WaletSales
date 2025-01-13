@@ -8,8 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Gudang EAJM')</title>
+    <title>@yield('title', 'Walets')</title>
     
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     @include('includes.style')
@@ -90,6 +91,66 @@
             <button id="send-message" class="btn-send">Kirim</button>
         </div>
     </div>
+    <!-- Chatbot Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatbotButton = document.querySelector('.chatbot-toggle');
+            const chatbotModal = document.querySelector('#chatbot-modal');
+            const closeChatbot = document.querySelector('#close-chatbot');
+            const chatInput = document.querySelector('#chat-input');
+            const sendMessageButton = document.querySelector('#send-message');
+            const chatMessages = document.querySelector('#chat-messages');
+        
+            // Show chatbot modal
+            chatbotButton.addEventListener('click', () => {
+                chatbotModal.style.display = 'flex';
+            });
+        
+            // Close chatbot modal
+            closeChatbot.addEventListener('click', () => {
+                chatbotModal.style.display = 'none';
+            });
+        
+            // Send message
+            sendMessageButton.addEventListener('click', () => {
+                const userInput = chatInput.value.trim(); // Ambil input pengguna
+                if (userInput) {
+                    appendMessage('User', userInput); // Tambahkan pesan ke UI
+                    chatInput.value = ''; // Kosongkan input setelah dikirim
+        
+                    // Kirim pesan ke API
+                    fetch('/chatbot-api', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({ message: userInput }), // Sesuaikan key di sini
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.reply) {
+                            appendMessage('Chatbot', data.reply); // Tambahkan balasan ke UI
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        appendMessage('Chatbot', 'Maaf, terjadi kesalahan pada server.');
+                    });
+                }
+            });
+        
+            // Append messages to chat window
+            function appendMessage(sender, message) {
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `${sender}: ${message}`;
+                messageElement.style.marginBottom = '10px';
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+        
+    </script>
     @include('includes.script')
 </body>
 

@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('sales_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->integer('quantity');
-            $table->decimal('subtotal', 10, 2);
+            $table->foreignId('sales_id')->constrained('sales')->onDelete('cascade');
+            $table->string('kode_produk');
+            $table->string('nama_barang');
+            $table->decimal('berat', 8, 2);
+            $table->decimal('harga', 15, 2);
+            $table->decimal('subtotal', 15, 2);
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
@@ -30,3 +31,4 @@ return new class extends Migration
         Schema::dropIfExists('sales_items');
     }
 };
+

@@ -31,8 +31,8 @@ class ProductController extends Controller
     {
         // Validasi input
         $validated = $request->validate([
-            'kode_produk' => 'required|string|unique:products,kode_produk',
-            'nama_barang' => 'required|string|max:255',
+            'kode_produk' => 'required|string',
+            'nama_barang' => 'required|string|max:255|unique:products,nama_barang,NULL,id,kode_produk,' . $request->kode_produk,
             'berat' => 'required|numeric',
             'harga' => 'required|numeric',
         ]);
@@ -53,7 +53,6 @@ class ProductController extends Controller
     {
         return view('pages.edit', compact('product'));
     }
-    
 
     /**
      * Update the specified resource in storage.
@@ -61,19 +60,21 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'kode_produk' => 'required|string|unique:products,kode_produk,' . $product->id,
-            'nama_barang' => 'required|string|max:255',
+            'kode_produk' => 'required|string',
+            'nama_barang' => 'required|string|max:255|unique:products,nama_barang,' . $product->id . ',id,kode_produk,' . $request->kode_produk,
             'berat' => 'required|numeric',
             'harga' => 'required|numeric',
         ]);
-    
+
+        // Hitung total
         $validated['total'] = $validated['berat'] * $validated['harga'];
-    
+
+        // Perbarui data di database
         $product->update($validated);
-    
+
         return redirect()->route('product.index')->with('success', 'Produk berhasil diperbarui!');
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */

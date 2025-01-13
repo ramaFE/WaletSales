@@ -12,15 +12,18 @@ class SalesItem extends Model
     protected $table = 'sales_items'; // Nama tabel
 
     protected $fillable = [
-        'sale_id',      // Relasi ke tabel sales
-        'product_id',   // Relasi ke tabel products
-        'quantity',     // Jumlah barang
-        'subtotal',     // Total harga per item (quantity x harga)
+        'sales_id',      // Relasi ke tabel sales
+        'kode_produk',  // Kode produk
+        'nama_barang',  // Nama barang
+        'berat',        // Berat barang
+        'harga',        // Harga barang
+        'total',        // Total harga per item (berat x harga)
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
-        'subtotal' => 'decimal:2',
+        'berat' => 'integer',
+        'harga' => 'decimal:2',
+        'total' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -28,24 +31,6 @@ class SalesItem extends Model
     // Relasi dengan Sale (satu item terkait ke satu penjualan)
     public function sale()
     {
-        return $this->belongsTo(Sale::class);
-    }
-
-    // Relasi dengan Product (satu item terkait ke satu produk)
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    // Accessor: Format subtotal menjadi string dengan format rupiah
-    public function getSubtotalAttribute($value)
-    {
-        return 'Rp ' . number_format($value, 0, ',', '.');
-    }
-
-    // Mutator: Hilangkan format rupiah sebelum menyimpan subtotal
-    public function setSubtotalAttribute($value)
-    {
-        $this->attributes['subtotal'] = str_replace(['Rp', '.', ','], '', $value);
+        return $this->belongsTo(Sale::class, 'sales_id');
     }
 }
