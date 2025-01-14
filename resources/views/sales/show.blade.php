@@ -82,7 +82,7 @@
                 const url = button.getAttribute('data-url');
                 const name = button.getAttribute('data-name');
                 const code = button.getAttribute('data-code');
-                productInfo.textContent = `${code} (${name})`;
+                productInfo.textContent = ${code} (${name});
                 deleteForm.setAttribute('action', url);
                 deleteModal.classList.remove('hidden');
             });

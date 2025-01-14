@@ -17,12 +17,6 @@ class Sale extends Model
         'subtotal',    // Subtotal dari penjualan
     ];
 
-    protected $casts = [
-        'subtotal' => 'decimal:2',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
     // Relasi dengan Customer (satu penjualan memiliki satu customer)
     public function customer()
     {
@@ -34,10 +28,4 @@ class Sale extends Model
     {
         return $this->hasMany(SalesItem::class, 'sales_id');
     }
-
-    public function getSubtotalAttribute()
-    {
-        return $this->items->sum('total'); // Ganti 'total' dengan nama kolom subtotal di tabel sales_items
-    }
-
 }

@@ -67,7 +67,7 @@
                     <td>{{ $item->nama_barang }}</td>
                     <td>{{ number_format($item->berat, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item->total, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>

@@ -89,7 +89,7 @@
         const itemContainer = document.querySelector('#item-list');
         const addItemButton = document.querySelector('#add-item');
         let itemCount = 1;
-
+    
         // Tambah Produk Baru
         addItemButton.addEventListener('click', function () {
             const itemRow = document.querySelector('.item').cloneNode(true);
@@ -104,7 +104,7 @@
             itemContainer.appendChild(itemRow);
             itemCount++;
         });
-
+    
         // Hitung Total per Baris
         document.addEventListener('input', function (e) {
             if (e.target.matches('.item input')) {
@@ -112,14 +112,14 @@
                 calculateSubtotal();
             }
         });
-
+    
         // Fungsi Hitung Total per Baris
         function calculateRowTotal(item) {
             const berat = parseFloat(item.querySelector('[name$="[berat]"]').value) || 0;
             const harga = parseFloat(item.querySelector('[name$="[harga]"]').value) || 0;
             item.querySelector('[name$="[total]"]').value = berat * harga;
         }
-
+    
         // Fungsi Hitung Subtotal
         function calculateSubtotal() {
             const totals = document.querySelectorAll('[name$="[total]"]');
@@ -128,4 +128,5 @@
         }
     });
 </script>
+    
 @endsection
