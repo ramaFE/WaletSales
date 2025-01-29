@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Customer;
-use App\Models\SalesOrder;
+use App\Models\Sale;
+use App\Models\SalesItem;
 use Carbon\Carbon;
 
 class ChatbotController extends Controller
@@ -92,14 +93,17 @@ class ChatbotController extends Controller
     // Mendapatkan semua penjualan
     private function getAllSales()
     {
-        $sales = SalesOrder::all();
+        $sales = Sale::with('customer', 'items')->get();
         if ($sales->isEmpty()) {
             return "Tidak ada penjualan yang ditemukan.";
         }
 
         $response = "Daftar penjualan:\n";
         foreach ($sales as $sale) {
-            $response .= "- Delivery Order: {$sale->delivery_order}, Customer: {$sale->customer->name}, Total: Rp" . number_format($sale->total, 0, ',', '.') . "\n";
+            $response .= "- Delivery Order: {$sale->delivery_order}, Customer: {$sale->customer->name}, Total: Rp" . number_format($sale->subtotal, 0, ',', '.') . "\n";
+            foreach ($sale->items as $item) {
+                $response .= "  * Item: {$item->nama_barang} (Qty: {$item->berat} x Harga: Rp" . number_format($item->harga, 0, ',', '.') . ")\n";
+            }
         }
 
         return $response;
@@ -108,7 +112,7 @@ class ChatbotController extends Controller
     // Mendapatkan penjualan berdasarkan nama pelanggan
     private function getSalesByCustomerName($customerName)
     {
-        $sales = SalesOrder::whereHas('customer', function ($query) use ($customerName) {
+        $sales = Sale::with('customer', 'items')->whereHas('customer', function ($query) use ($customerName) {
             $query->where('name', 'LIKE', "%$customerName%");
         })->get();
 
@@ -118,7 +122,10 @@ class ChatbotController extends Controller
 
         $response = "Daftar penjualan untuk pelanggan '{$customerName}':\n";
         foreach ($sales as $sale) {
-            $response .= "- Delivery Order: {$sale->delivery_order}, Total: Rp" . number_format($sale->total, 0, ',', '.') . "\n";
+            $response .= "- Delivery Order: {$sale->delivery_order}, Total: Rp" . number_format($sale->subtotal, 0, ',', '.') . "\n";
+            foreach ($sale->items as $item) {
+                $response .= "  * Item: {$item->nama_barang} (Qty: {$item->berat} x Harga: Rp" . number_format($item->harga, 0, ',', '.') . ")\n";
+            }
         }
 
         return $response;
@@ -127,7 +134,7 @@ class ChatbotController extends Controller
     // Mendapatkan penjualan berdasarkan nomor delivery order
     private function getSalesByDeliveryOrder($deliveryOrder)
     {
-        $sales = SalesOrder::where('delivery_order', $deliveryOrder)->get();
+        $sales = Sale::with('customer', 'items')->where('delivery_order', $deliveryOrder)->get();
 
         if ($sales->isEmpty()) {
             return "Penjualan dengan nomor delivery '{$deliveryOrder}' tidak ditemukan.";
@@ -135,7 +142,10 @@ class ChatbotController extends Controller
 
         $response = "Penjualan dengan nomor delivery '{$deliveryOrder}':\n";
         foreach ($sales as $sale) {
-            $response .= "- Customer: {$sale->customer->name}, Total: Rp" . number_format($sale->total, 0, ',', '.') . "\n";
+            $response .= "- Customer: {$sale->customer->name}, Total: Rp" . number_format($sale->subtotal, 0, ',', '.') . "\n";
+            foreach ($sale->items as $item) {
+                $response .= "  * Item: {$item->nama_barang} (Qty: {$item->berat} x Harga: Rp" . number_format($item->harga, 0, ',', '.') . ")\n";
+            }
         }
 
         return $response;
@@ -145,7 +155,7 @@ class ChatbotController extends Controller
     private function getTodaySales()
     {
         $today = Carbon::today();
-        $sales = SalesOrder::whereDate('created_at', $today)->get();
+        $sales = Sale::with('customer', 'items')->whereDate('created_at', $today)->get();
 
         if ($sales->isEmpty()) {
             return "Tidak ada barang yang dikirim pada hari ini.";
@@ -153,7 +163,10 @@ class ChatbotController extends Controller
 
         $response = "Barang yang dikirim pada hari ini:\n";
         foreach ($sales as $sale) {
-            $response .= "- Delivery Order: {$sale->delivery_order}, Customer: {$sale->customer->name}, Total: Rp" . number_format($sale->total, 0, ',', '.') . "\n";
+            $response .= "- Delivery Order: {$sale->delivery_order}, Customer: {$sale->customer->name}, Total: Rp" . number_format($sale->subtotal, 0, ',', '.') . "\n";
+            foreach ($sale->items as $item) {
+                $response .= "  * Item: {$item->nama_barang} (Qty: {$item->berat} x Harga: Rp" . number_format($item->harga, 0, ',', '.') . ")\n";
+            }
         }
 
         return $response;

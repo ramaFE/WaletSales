@@ -11,7 +11,10 @@ class DashboardController extends Controller
     {
         // Query untuk mendapatkan data stok dan sisa stok
         $products = DB::table('products')
-            ->leftJoin('sales_items', 'products.kode_produk', '=', 'sales_items.kode_produk')
+            ->leftJoin('sales_items', function ($join) {
+                $join->on('products.kode_produk', '=', 'sales_items.kode_produk')
+                    ->on('products.nama_barang', '=', 'sales_items.nama_barang'); // Pastikan menggabungkan berdasarkan nama barang juga
+            })
             ->selectRaw('
                 products.kode_produk,
                 products.nama_barang,
@@ -25,4 +28,5 @@ class DashboardController extends Controller
         // Mengembalikan view ke dashboard
         return view('pages.dashboard', compact('products'));
     }
+
 }
