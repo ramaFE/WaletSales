@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ReportController;
 use Laravel\Fortify\Fortify;
 use App\Http\Controllers\CustomAuthenticatedSessionController;
 use App\Http\Controllers\ChatbotController;
@@ -15,6 +16,10 @@ Fortify::loginView(fn() => view('auth.login'));
 
 Route::post('/logout', [CustomAuthenticatedSessionController::class, 'destroy'])->name('logout');
 Route::post('/chatbot-api', [ChatbotController::class, 'handle'])->name('chatbot.api');
+
+Route::get('/report/excel', [ReportController::class, 'exportExcel'])->name('report.excel');
+Route::get('/report/pdf', [ReportController::class, 'exportPDF'])->name('report.pdf');
+
 
 // Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])
