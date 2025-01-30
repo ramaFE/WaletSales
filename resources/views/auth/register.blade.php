@@ -15,7 +15,7 @@
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-5">
                         <div class="text-center">
-                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle" >
+                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle">
                             <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
                         </div>
                         <form method="POST" action="{{ route('register') }}">
@@ -36,6 +36,13 @@
                                 <input type="password" name="password_confirmation" class="form-control form-control-user"
                                     id="password_confirmation" placeholder="Confirm Password" required>
                             </div>
+
+                            <!-- Video Input for Face Recognition -->
+                            <div id="face-scanner" class="form-group">
+                                <video id="videoElement" autoplay></video>
+                                <button type="button" class="btn btn-secondary" id="scanFaceBtn">Scan Face</button>
+                            </div>
+
                             <button type="submit" class="btn btn-primary btn-user btn-block">Register Account</button>
                         </form>
                         <hr>
@@ -47,6 +54,32 @@
             </div>
         </div>
     </div>
+    
     @include('includes.script')
+
+    <script>
+        const video = document.getElementById('videoElement');
+        const scanFaceBtn = document.getElementById('scanFaceBtn');
+    
+        scanFaceBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+            }
+    
+            const descriptors = await handleFaceDetection(video);
+            if (descriptors) {
+                fetch('/api/register-face', {
+                    method: 'POST',
+                    body: JSON.stringify({ descriptors }),
+                    headers: { 'Content-Type': 'application/json' },
+                }).then(response => response.json())
+                  .then(data => alert('Face registered successfully'));
+            }
+        });
+    </script>
+    
 </body>
 </html>

@@ -15,7 +15,7 @@
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-5">
                         <div class="text-center">
-                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle" >
+                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle">
                             <h1 class="h4 text-gray-900 mb-4">Welcome Back to Walets</h1>
                         </div>                        
                         <form method="POST" action="{{ route('login') }}">
@@ -34,6 +34,13 @@
                                     <label class="custom-control-label" for="remember">Remember Me</label>
                                 </div>
                             </div>
+
+                            <!-- Face Scan Option -->
+                            <div id="face-scanner" class="form-group">
+                                <video id="loginVideoElement" autoplay></video>
+                                <button type="button" class="btn btn-secondary" id="loginScanFaceBtn">Scan Face</button>
+                            </div>
+
                             <button type="submit" class="btn btn-primary btn-user btn-block">Login</button>
                         </form>
                         <hr>
@@ -46,5 +53,30 @@
         </div>
     </div>
     @include('includes.script')
+
+    <script>
+        const loginVideo = document.getElementById('loginVideoElement');
+        const loginScanFaceBtn = document.getElementById('loginScanFaceBtn');
+    
+        loginScanFaceBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                loginVideo.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+            }
+    
+            const descriptors = await handleFaceDetection(loginVideo);
+            if (descriptors) {
+                fetch('/api/login-face', {
+                    method: 'POST',
+                    body: JSON.stringify({ descriptors }),
+                    headers: { 'Content-Type': 'application/json' },
+                }).then(response => response.json())
+                  .then(data => alert('Login successful'));
+            }
+        });
+    </script>
+    
 </body>
 </html>
