@@ -15,7 +15,7 @@
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-5">
                         <div class="text-center">
-                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4, img-profile rounded-circle">
+                            <img src="{{ asset('logo_walet.png') }}" alt="Logo" class="logo mb-4 img-profile rounded-circle">
                             <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
                         </div>
                         <form method="POST" action="{{ route('register') }}">
@@ -37,10 +37,11 @@
                                     id="password_confirmation" placeholder="Confirm Password" required>
                             </div>
 
-                            <!-- Video Input for Face Recognition -->
-                            <div id="face-scanner" class="form-group">
-                                <video id="videoElement" autoplay></video>
-                                <button type="button" class="btn btn-secondary" id="scanFaceBtn">Scan Face</button>
+                            <!-- Face Scanner -->
+                            <div class="form-group">
+                                <video id="videoElement" autoplay width="100%" height="300"></video>
+                                <button type="button" class="btn btn-secondary mt-2" id="scanFaceBtn">Scan Face</button>
+                                <input type="hidden" name="face_descriptor" id="face_descriptor">
                             </div>
 
                             <button type="submit" class="btn btn-primary btn-user btn-block">Register Account</button>
@@ -54,32 +55,51 @@
             </div>
         </div>
     </div>
-    
+        <!-- Load Face-API.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api"></script>
     @include('includes.script')
 
     <script>
         const video = document.getElementById('videoElement');
         const scanFaceBtn = document.getElementById('scanFaceBtn');
-    
+        const faceDescriptorInput = document.getElementById('face_descriptor');
+
+        async function loadFaceModels() {
+            const MODEL_URL = '/models';
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        }
+
+        async function handleFaceDetection(videoElement) {
+            const detections = await faceapi.detectSingleFace(videoElement)
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            if (!detections) {
+                alert("No face detected, please try again.");
+                return null;
+            }
+
+            return detections.descriptor;
+        }
+
         scanFaceBtn.addEventListener('click', async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
                 video.srcObject = stream;
+
+                await loadFaceModels();
+                const descriptor = await handleFaceDetection(video);
+                
+                if (descriptor) {
+                    faceDescriptorInput.value = JSON.stringify(descriptor);
+                    alert("Face scanned successfully!");
+                }
             } catch (err) {
                 console.error("Error accessing camera:", err);
             }
-    
-            const descriptors = await handleFaceDetection(video);
-            if (descriptors) {
-                fetch('/api/register-face', {
-                    method: 'POST',
-                    body: JSON.stringify({ descriptors }),
-                    headers: { 'Content-Type': 'application/json' },
-                }).then(response => response.json())
-                  .then(data => alert('Face registered successfully'));
-            }
         });
     </script>
-    
 </body>
 </html>
