@@ -6,61 +6,64 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class FaceRecognitionController extends Controller
 {
-    // Register User with Face Descriptor
+    // Register with face descriptor
     public function registerWithFace(Request $request)
     {
+        // Validasi input dari user
         $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'face_descriptor' => 'required|array',
+            'password' => 'required|string|min:6|confirmed',
+            'face_descriptor' => 'required|json', // Pastikan data face descriptor dikirim sebagai JSON
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'face_descriptor' => $request->face_descriptor,
-        ]);
+        // Log untuk memeriksa face_descriptor yang diterima
+        Log::info('Received face descriptor:', ['face_descriptor' => $request->input('face_descriptor')]);
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-        ], 201);
-    }
+        try {
+            // Simpan user baru
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password); // Password di-hash
+            $user->face_descriptor = json_encode($request->face_descriptor); // Simpan sebagai JSON
+            $user->save();
 
-    // Login User using Face Descriptor
-    public function loginWithFace(Request $request)
-    {
-        $request->validate([
-            'face_descriptor' => 'required|array',
-        ]);
+            // Log untuk debug
+            Log::info('User registered with face descriptor:', ['user_id' => $user->id]);
 
-        $users = User::all();
-        $inputDescriptor = $request->face_descriptor;
-
-        foreach ($users as $user) {
-            $storedDescriptor = $user->face_descriptor;
-            
-            if ($storedDescriptor && $this->compareFaceDescriptors($storedDescriptor, $inputDescriptor)) {
-                Auth::login($user);
-                return response()->json([
-                    'message' => 'Login successful',
-                    'user' => $user,
-                ]);
-            }
+            return response()->json(['message' => 'User registered successfully'], 201);
+        } catch (\Exception $e) {
+            Log::error('Error during user registration', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Something went wrong'], 500);
         }
-
-        return response()->json(['error' => 'Face not recognized'], 401);
     }
 
-    // Function to Compare Face Descriptors (Euclidean Distance)
-    private function compareFaceDescriptors(array $storedDescriptor, array $inputDescriptor, float $threshold = 0.6)
-    {
-        $distance = sqrt(array_sum(array_map(fn($s, $i) => ($s - $i) ** 2, $storedDescriptor, $inputDescriptor)));
-        return $distance < $threshold;
+    // Login menggunakan face descriptor
+    public function loginWithFace(Request $request)
+{
+    // Validasi input
+    $request->validate([
+        'email' => 'required|email',
+        'face_descriptor' => 'required|json',  // Pastikan face_descriptor dikirim dalam format JSON
+    ]);
+
+    // Cek apakah user ada di database berdasarkan email
+    $user = User::where('email', $request->email)->first();
+
+    if ($user && json_decode($user->face_descriptor) == json_decode($request->face_descriptor)) {
+        // Jika face descriptor cocok
+        Auth::login($user);
+        return response()->json(['message' => 'User logged in successfully'], 200);
+    } else {
+        return response()->json(['error' => 'Invalid credentials or face mismatch'], 401);
     }
+}
+    
+
 }

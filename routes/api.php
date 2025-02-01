@@ -15,9 +15,9 @@ use App\Http\Controllers\FaceRecognitionController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::post('/register-face', [FaceRecognitionController::class, 'registerWithFace']);
 Route::post('/login-face', [FaceRecognitionController::class, 'loginWithFace']);
