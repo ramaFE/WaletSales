@@ -96,52 +96,53 @@
             return detections.descriptor;
         }
 
-        loginScanFaceBtn.addEventListener('click', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-                loginVideo.srcObject = stream;
-
-                await loadFaceModels();
-                const descriptor = await handleLoginFaceDetection(loginVideo);
-
-                if (descriptor) {
-                    faceDescriptorInput.value = JSON.stringify(descriptor);  // Menyimpan face descriptor di input tersembunyi
-                    console.log("Face Descriptor Terkirim:", faceDescriptorInput.value);
-                    alert("Face scanned successfully!");
-
-                    // Ambil email dari form untuk dikirimkan bersama face_descriptor
-                    const email = emailInput.value;
-
-                    // Ambil CSRF Token dari meta tag
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                    // Kirim data face_descriptor dan email untuk login
-                    fetch('/login', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            email: email,  // Email yang diambil dari input form
-                            face_descriptor: descriptor  // Face descriptor hasil scan
-                        }),
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken  // Sertakan CSRF Token
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("Login response:", data);
-                        if (data.message === 'User logged in successfully') {
-                            window.location.href = '/dashboard';  // Redirect ke dashboard jika login sukses
-                        } else {
-                            alert('Face not recognized. Please try again.');
-                        }
-                    })
-                    .catch(error => console.error("Error:", error));
+            loginScanFaceBtn.addEventListener('click', async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                    loginVideo.srcObject = stream;
+        
+                    await loadFaceModels();
+                    const descriptor = await handleLoginFaceDetection(loginVideo);
+        
+                    if (descriptor) {
+                        faceDescriptorInput.value = JSON.stringify(descriptor);  // Menyimpan face descriptor di input tersembunyi
+                        console.log("Face Descriptor Terkirim:", faceDescriptorInput.value);
+                        alert("Face scanned successfully!");
+        
+                        // Ambil email dari form untuk dikirimkan bersama face_descriptor
+                        const email = emailInput.value;
+        
+                        // Ambil CSRF Token dari meta tag
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+                        // Kirim data face_descriptor dan email untuk login
+                        fetch('{{ route('login.face') }}', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                email: email,  // Email yang diambil dari input form
+                                face_descriptor: descriptor  // Face descriptor hasil scan
+                            }),
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken  // Sertakan CSRF Token
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Login response:", data);
+                            if (data.message === 'User logged in successfully') {
+                                window.location.href = '/dashboard';  // Redirect ke dashboard jika login sukses
+                            } else {
+                                alert('Face not recognized. Please try again.');
+                            }
+                        })
+                        .catch(error => console.error("Error:", error));
+                    }
+                } catch (err) {
+                    console.error("Error accessing camera:", err);
                 }
-            } catch (err) {
-                console.error("Error accessing camera:", err);
-            }
-        });
+            });
+
     </script>
 </body>
 </html>

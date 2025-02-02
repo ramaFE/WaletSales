@@ -99,7 +99,7 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
                 video.srcObject = stream;
-
+    
                 await loadFaceModels();
                 const descriptor = await handleFaceDetection(video);
                 

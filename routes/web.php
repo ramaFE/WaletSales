@@ -13,7 +13,7 @@ use App\Http\Controllers\FaceRecognitionController;
 
 
 Route::post('/register-face', [FaceRecognitionController::class, 'registerWithFace'])->name('register.face');
-Route::post('/login-face', [FaceRecognitionController::class, 'loginWithFace'])->name('login.face')->middleware('web');
+Route::post('/login-face', [FaceRecognitionController::class, 'loginWithFace'])->name('login.face');
 
 // Fortify Register & Login Views
 Fortify::registerView(fn() => view('auth.register'));

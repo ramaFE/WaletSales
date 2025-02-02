@@ -13,5 +13,6 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         '/chatbot-api',
+        'login',
     ];    
 }
